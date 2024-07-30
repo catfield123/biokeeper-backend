@@ -205,3 +205,27 @@ class ResearchesManager(AbstractDBManager):
                 researches = []
             researches = [{'research_id': research_id} for research_id in researches]
         return researches
+    
+    def new_text(self, research_id: int, text: str):
+        with self.db as (conn, cursor):
+            cursor.execute("""
+                INSERT INTO research_description (research_id, type, text)
+                VALUES (%s, 'text', %s)
+            """, (research_id, text))
+            conn.commit()
+
+    def new_polygon(self, research_id: int, coordinates: list[tuple[float, float]], text: str):
+        with self.db as (conn, cursor):
+            cursor.execute("""
+                INSERT INTO research_description (research_id, type, polygon_data, text)
+                VALUES (%s, 'polygon', %s, %s)
+            """, (research_id, coordinates, text))
+            conn.commit()
+
+    def new_point(self, research_id: int, coordinates: tuple[float, float], text: str):
+        with self.db as (conn, cursor):
+            cursor.execute("""
+                INSERT INTO research_description (research_id, type, polygon_data, text)
+                VALUES (%s, 'point', %s, %s)
+            """, (research_id, coordinates, text))
+            conn.commit()
