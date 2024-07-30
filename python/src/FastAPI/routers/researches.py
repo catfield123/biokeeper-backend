@@ -258,12 +258,21 @@ def create_research(
     else:
         raise HTTPConflictException(detail=f'Research {research_name} already exists')
 
-    new_research_id = DBM.researches.new(research_name=research_name, 
-                              user_id=user_id, 
-                              day_start=create_research_request.day_start, 
-                              research_comment=create_research_request.research_comment, 
-                              log=False, 
-                              approval_required=create_research_request.approval_required)
+    new_research_id = DBM.researches.new(
+                            research_name=research_name, 
+                            user_id=user_id, 
+                            day_start=create_research_request.day_start, 
+                            research_comment=create_research_request.research_comment, 
+                            log=False, 
+                            approval_required=create_research_request.approval_required)
+    
+    for description in create_research_request.descriptions:
+        if description.type == "text":
+            DBM.descriptions.new_text(research_id=new_research_id, text=description.text)
+        elif description.type == "polygon":
+            DBM.descriptions.new_polygon(research_id=new_research_id, coordinates=description.coordinates, text=description.text)
+        elif description.type == "point":
+            DBM.descriptions.new_point(research_id=new_research_id, coordinates=description.coordinates, text=description.text)
     
     return JSONResponse(status_code=status.HTTP_201_CREATED, 
                         content={'id': new_research_id, 'name': research_name}
